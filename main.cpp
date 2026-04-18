@@ -5,7 +5,6 @@
 
 int main(int argc, char *argv[])
 {
-    qputenv("QT_QPA_PLATFORM", "wayland;xcb");
     QGuiApplication app(argc, argv);
     Manager m;
     QQmlApplicationEngine engine;

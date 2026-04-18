@@ -40,12 +40,9 @@ QVariant Manager::data(const QModelIndex &index, int role) const
 
 void Manager::save_to_csv(const QString &file_path)
 {
-    qDebug() << "invokable";
-    QString path = file_path;
-    if (path.startsWith("file:///"))
-    {
-        path.remove(0, 8);
-    }
+    QUrl url(file_path);
+    QString path = url.isLocalFile() ? url.toLocalFile() : file_path;
+    qDebug() << "Saving to:" << path;
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
         return;
@@ -102,16 +99,13 @@ void Manager::change_list(int id, int position, QString new_value)
 
 void Manager::download_from_csv(const QString &file_path)
 {
-    qDebug() << "invokable";
-    QString path = file_path;
-    if (path.startsWith("file:///"))
-    {
-        path.remove(0, 8);
-    }
-    beginResetModel();
+    QUrl url(file_path);
+    QString path = url.isLocalFile() ? url.toLocalFile() : file_path;
+    qDebug() << "Saving to:" << path;
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
+    beginResetModel();
     subscription.clear();
     QTextStream out(&file);
     QString line;

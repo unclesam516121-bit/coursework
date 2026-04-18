@@ -9,7 +9,8 @@
 #include <QAbstractListModel>
 #include <QObject>
 
-struct Abon {
+struct Abon
+{
     QString ID;
     QString client_name;
     QString abonement_type;
