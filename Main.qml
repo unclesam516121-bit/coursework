@@ -6,17 +6,18 @@ import QtQuick.Dialogs
 ApplicationWindow
 {
     id: window
-    width: 600
-    height: 500
+    width: 800
+    height: 600
     visible: true
     title: "Fitness subscriptions"
+    property string currentSelectedType: ""
 
     FileDialog
     {
         id: openDlg
         title: "Открыть CSV"
-        currentFolder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
-        onAccepted: myModel.download_from_csv(selectedFile.toString())
+        fileMode: FileDialog.OpenFile
+        onAccepted: abonements.download_from_csv(selectedFile)
     }
 
     FileDialog
@@ -24,17 +25,25 @@ ApplicationWindow
         id: saveDlg
         title: "Сохранить CSV"
         fileMode: FileDialog.SaveFile
-        onAccepted: myModel.save_to_csv(selectedFile.toString())
+        onAccepted: abonements.save_to_csv(selectedFile)
     }
 
     header: ToolBar
     {
-        Row
+        RowLayout
         {
+            anchors.fill: parent
             spacing: 10
-            padding: 5
-            Button { text: "Открыть"; onClicked: openDlg.open() }
-            Button { text: "Сохранить"; onClicked: saveDlg.open() }
+            Button
+            {
+                text: "Открыть";
+                onClicked: openDlg.open()
+            }
+            Button
+            {
+                text: "Сохранить";
+                onClicked: saveDlg.open()
+            }
         }
     }
 
@@ -42,84 +51,217 @@ ApplicationWindow
     {
         anchors.fill: parent
         anchors.margins: 10
-        spacing: 10
+        spacing: 15
 
-        ListView
+//Abonements
+        Label
         {
-            id: listView
+            text: "Абонементы";
+            font.pixelSize: 16
+        }
+        Frame
+        {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            clip: true
-            model: myModel
-            highlight: Rectangle { color: "lightsteelblue"; radius: 2 }
-            focus: true
-            delegate: ItemDelegate
+            padding: 0
+            ListView
             {
-                width: listView.width
-                contentItem: Text
+                id: subList
+                anchors.fill: parent
+                clip: true
+                model: abonements
+                highlight: Rectangle
                 {
-                    text: idVal + " | " + nameVal + " | " + typeVal + " | " + dateVal + " | " + priceVal + " руб."
-                    font.pixelSize: 14
+                    color: "#e0e0e0";
+                    radius: 5
                 }
-                onClicked:
+                focus: true
+                delegate: ItemDelegate
                 {
-                    listView.currentIndex = index
-                    f1.text = idVal
-                    f2.text = nameVal
-                    f3.text = typeVal
-                    f4.text = dateVal
-                    f5.text = priceVal
+                    width: subList.width
+                    height: 40
+                    RowLayout
+                    {
+                        anchors.fill: parent
+                        anchors.leftMargin: 10
+                        spacing: 20
+                        Text
+                        {
+                            text: idVal;
+                            Layout.preferredWidth: 30
+                        }
+                        Text
+                        {
+                            text: nameVal;
+                            Layout.fillWidth: true
+                        }
+                        Text
+                        {
+                            text: typeVal;
+                            Layout.preferredWidth: 100
+                        }
+                        Text
+                        {
+                            text: dateVal;
+                            Layout.preferredWidth: 80
+                        }
+                        Text
+                        {
+                            text: priceVal + " руб.";
+                            Layout.preferredWidth: 80
+                        }
+                    }
+
+                    onClicked:
+                    {
+                        subList.currentIndex = index
+                        window.currentSelectedType = typeVal
+                        f1.text = idVal;
+                        f2.text = nameVal;
+                        f3.text = typeVal
+                        f4.text = dateVal;
+                        f5.text = priceVal
+                        exerciseList.forceLayout()
+                    }
                 }
             }
         }
-
+        Label
+        {
+            text: "упражнения"
+            font.pixelSize: 16
+        }
+        Frame
+        {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            padding: 0
+            ListView
+            {
+                id: exerciseList
+                anchors.fill: parent
+                clip: true
+                model: trenagers
+                delegate: Item
+                {
+                    width: parent.width
+                    height: nameVal === window.currentSelectedType ? contentCol.implicitHeight + 10 : 0
+                    visible: height > 0
+                    Column
+                    {
+                        id: contentCol
+                        width: parent.width
+                        padding: 5
+                        spacing: 2
+                        Text
+                        {
+                            text: nameVal + " (" + MuscleGroupVal + ")"
+                            font.pixelSize: 14
+                        }
+                        Repeater
+                        {
+                            model: dataVal
+                            delegate: Text
+                            {
+                                text: modelData
+                                font.pixelSize: 12
+                                leftPadding: 10
+                                width: parent.width
+                                wrapMode: Text.Wrap
+                            }
+                        }
+                    }
+                }
+                Label
+                {
+                    anchors.centerIn: parent
+                    text: "Выберите абонемент"
+                    color: "gray"
+                    visible: exerciseList.count === 0 || !window.currentSelectedType
+                }
+            }
+        }
         Rectangle
         {
             Layout.fillWidth: true
-            height: 120
-            color: "#f0f0f0"
-            border.color: "#ccc"
+            height: 140
+            color: "#f5f5f5"
+            border.color: "#ddd"
             radius: 5
-
             GridLayout
             {
                 anchors.fill: parent
-                anchors.margins: 10
-                columns: 3
-                rowSpacing: 5
-                TextField { id: f1; placeholderText: "ID"; Layout.preferredWidth: 60 }
-                TextField { id: f2; placeholderText: "Имя"; Layout.fillWidth: true }
-                TextField { id: f3; placeholderText: "Тип"; Layout.preferredWidth: 100 }
-                TextField { id: f4; placeholderText: "Дата"; Layout.preferredWidth: 100 }
-                TextField { id: f5; placeholderText: "Цена"; Layout.preferredWidth: 100 }
+                columns: 6
+                rowSpacing: 10
 
-                RowLayout
+                TextField
                 {
-                    Layout.columnSpan: 3
+                    id: f1;
+                    placeholderText: "ID";
+                    Layout.preferredWidth: 50
+                }
+                TextField
+                {
+                    id: f2;
+                    placeholderText: "Имя";
+                    Layout.fillWidth: true
+                }
+                TextField
+                {
+                    id: f3;
+                    placeholderText: "Тип";
+                    Layout.preferredWidth: 100
+                }
+                TextField
+                {
+                    id: f4;
+                    placeholderText: "Дата";
+                    Layout.preferredWidth: 90
+                }
+                TextField
+                {
+                    id: f5;
+                    placeholderText: "Цена";
+                    Layout.preferredWidth: 70
+                }
+
+                ColumnLayout
+                {
+                    spacing: 5
                     Button
                     {
                         text: "Добавить"
-                        onClicked: myModel.add_to_list(f1.text, f2.text, f3.text, f4.text, f5.text)
+                        highlighted: true
+                        Layout.fillWidth: true
+                        onClicked: abonements.add_to_list(f1.text, f2.text, f3.text, f4.text, f5.text)
                     }
+
                     Button
                     {
                         text: "Изменить"
-                        enabled: listView.currentIndex !== -1
-                        onClicked: {
-                            myModel.change_list(listView.currentIndex, 1, f1.text)
-                            myModel.change_list(listView.currentIndex, 2, f2.text)
-                            myModel.change_list(listView.currentIndex, 3, f3.text)
-                            myModel.change_list(listView.currentIndex, 4, f4.text)
-                            myModel.change_list(listView.currentIndex, 5, f5.text)
+                        Layout.fillWidth: true
+                        enabled: subList.currentIndex !== -1
+                        onClicked:
+                        {
+                            var idx = subList.currentIndex
+                            abonements.change_list(idx, 1, f1.text)
+                            abonements.change_list(idx, 2, f2.text)
+                            abonements.change_list(idx, 3, f3.text)
+                            abonements.change_list(idx, 4, f4.text)
+                            abonements.change_list(idx, 5, f5.text)
+                            window.currentSelectedType = f3.text
                         }
                     }
+
                     Button
                     {
                         text: "Удалить"
-                        onClicked: myModel.delete_from_list(listView.currentIndex)
+                        Layout.fillWidth: true
+                        onClicked: abonements.delete_from_list(subList.currentIndex)
                     }
                 }
             }
         }
+
     }
 }

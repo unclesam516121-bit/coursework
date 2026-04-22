@@ -1,6 +1,41 @@
 #include "abonement.h"
 #include <QUrl>
 
+QVariant Trenagers::data(const QModelIndex &index, int role) const
+{
+    const Tren &item = abonement[index.row()];
+    if(index.isValid() && index.row() < abonement.size())
+    {
+        switch (role)
+        {
+        case Id_Role:
+            return abonement[index.row()].id;
+        case Name_Role:
+            return abonement[index.row()].name;
+        case Muscle_Group_Role:
+            return abonement[index.row()].muscle_group;
+        case Data_Role:
+            return QStringList(item.arr.value(item.name));
+        }
+    }
+    return QVariant();
+}
+
+int Trenagers::rowCount(const QModelIndex &parent) const
+{
+    return abonement.size();
+}
+
+QHash<int, QByteArray> Trenagers::roleNames() const
+{
+    QHash<int, QByteArray> roles;
+    roles[Id_Role] = "idVal";
+    roles[Name_Role] = "nameVal";
+    roles[Muscle_Group_Role] = "MuscleGroupVal";
+    roles[Data_Role] = "dataVal";
+    return roles;
+}
+
 QHash<int, QByteArray> Manager::roleNames() const
 {
     QHash<int, QByteArray> roles;
@@ -42,7 +77,6 @@ void Manager::save_to_csv(const QString &file_path)
 {
     QUrl url(file_path);
     QString path = url.isLocalFile() ? url.toLocalFile() : file_path;
-    qDebug() << "Saving to:" << path;
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
         return;
@@ -101,7 +135,6 @@ void Manager::download_from_csv(const QString &file_path)
 {
     QUrl url(file_path);
     QString path = url.isLocalFile() ? url.toLocalFile() : file_path;
-    qDebug() << "Saving to:" << path;
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
