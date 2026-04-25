@@ -72,7 +72,6 @@ ApplicationWindow
                 model: abonements
                 highlight: Rectangle
                 {
-                    color: "#e0e0e0";
                     radius: 5
                 }
                 focus: true
@@ -172,21 +171,12 @@ ApplicationWindow
                         }
                     }
                 }
-                Label
-                {
-                    anchors.centerIn: parent
-                    text: "Выберите абонемент"
-                    color: "gray"
-                    visible: exerciseList.count === 0 || !window.currentSelectedType
-                }
             }
         }
         Rectangle
         {
             Layout.fillWidth: true
             height: 140
-            color: "#f5f5f5"
-            border.color: "#ddd"
             radius: 5
             GridLayout
             {
@@ -198,31 +188,26 @@ ApplicationWindow
                 {
                     id: f1;
                     placeholderText: "ID";
-                    Layout.preferredWidth: 50
                 }
                 TextField
                 {
                     id: f2;
                     placeholderText: "Имя";
-                    Layout.fillWidth: true
                 }
                 TextField
                 {
                     id: f3;
                     placeholderText: "Тип";
-                    Layout.preferredWidth: 100
                 }
                 TextField
                 {
                     id: f4;
                     placeholderText: "Дата";
-                    Layout.preferredWidth: 90
                 }
                 TextField
                 {
                     id: f5;
                     placeholderText: "Цена";
-                    Layout.preferredWidth: 70
                 }
 
                 ColumnLayout

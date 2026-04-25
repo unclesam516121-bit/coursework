@@ -144,7 +144,7 @@ void Manager::download_from_csv(const QString &file_path)
     QString line;
     while(out.readLineInto(&line))
     {
-        QStringList list = line.split(u',');
+        QStringList list = line.split(',');
         if(list.size() == 5)
         {
             Abon item;
